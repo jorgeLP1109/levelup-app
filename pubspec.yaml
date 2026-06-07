@@ -1,0 +1,39 @@
+name: level2026
+description: Level 2026 - App de gimnasio de gimnasia
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # HTTP client
+  dio: ^5.4.3+1
+
+  # Almacenamiento seguro de JWT
+  flutter_secure_storage: ^9.2.2
+
+  # Gestión de estado
+  provider: ^6.1.2
+
+  # Notificaciones locales
+  flutter_local_notifications: ^17.2.1+2
+
+  # Google Maps
+  google_maps_flutter: ^2.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/logo.jpg
+    - assets/images/icon.ico
