@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/constants.dart';
 import '../providers/auth_provider.dart';
 import '../providers/class_provider.dart';
@@ -1007,15 +1008,22 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
                   child: hasLoc
                       ? Stack(
                           children: [
-                            // Mapa embebido con Google Maps
-                            Image.network(
-                              'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x400&markers=color:red%7C$lat,$lng&key=YOUR_KEY',
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorBuilder: (_, __, ___) => _mapPlaceholder(lat, lng),
+                            GoogleMap(
+                              initialCameraPosition: CameraPosition(
+                                target: LatLng(lat, lng),
+                                zoom: 15,
+                              ),
+                              markers: {
+                                Marker(
+                                  markerId: const MarkerId('conductor'),
+                                  position: LatLng(lat, lng),
+                                  infoWindow: InfoWindow(title: conductor['nombre'] ?? 'Conductor'),
+                                ),
+                              },
+                              myLocationEnabled: false,
+                              zoomControlsEnabled: false,
+                              mapToolbarEnabled: false,
                             ),
-                            // Coordenadas overlay
                             Positioned(
                               bottom: 12,
                               left: 12,
@@ -1076,8 +1084,6 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
             const SizedBox(height: 8),
             Text('Lat: ${lat.toStringAsFixed(5)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             Text('Lng: ${lng.toStringAsFixed(5)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-            const SizedBox(height: 12),
-            const Text('Actualizando cada 5s...', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
           ],
         ),
       ),
