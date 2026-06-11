@@ -3,10 +3,14 @@ import 'package:provider/provider.dart';
 import 'core/constants.dart';
 import 'providers/auth_provider.dart';
 import 'providers/class_provider.dart';
+import 'providers/cart_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/cart_screen.dart';
+import 'screens/teachers_screen.dart';
+import 'screens/shop_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +26,7 @@ class Level2026App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..tryAutoLogin()),
         ChangeNotifierProvider(create: (_) => ClassProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
         title: AppConstants.appName,
@@ -33,6 +38,9 @@ class Level2026App extends StatelessWidget {
           '/register': (_) => const RegisterScreen(),
           '/dashboard': (_) => const DashboardScreen(),
           '/profile': (_) => const ProfileScreen(),
+          '/cart': (_) => const CartScreen(),
+          '/teachers': (_) => const TeachersScreen(),
+          '/shop': (_) => const ShopScreen(),
         },
       ),
     );

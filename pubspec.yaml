@@ -26,10 +26,24 @@ dependencies:
   # Google Maps
   google_maps_flutter: ^2.6.1
 
+  # WebView para pasarela de pago
+  webview_flutter: ^4.10.0
+
+  # Selector de imágenes
+  image_picker: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.jpg"
+  adaptive_icon_background: "#0A192F"
+  adaptive_icon_foreground: "assets/images/logo.jpg"
 
 flutter:
   uses-material-design: true
