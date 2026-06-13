@@ -32,6 +32,9 @@ dependencies:
   # Selector de imágenes
   image_picker: ^1.1.2
 
+  # QR Code
+  qr_flutter: ^4.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

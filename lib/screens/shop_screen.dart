@@ -141,7 +141,7 @@ class _ProductCard extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: [
-                        Text('\$${precio.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text('${precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 16)),
                         const Spacer(),
                         if (stock > 0)
                           GestureDetector(
@@ -249,7 +249,7 @@ class _ProductDetailScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                 decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-                                child: Text('\$${precio.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 20)),
+                                child: Text('${precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 20)),
                               ),
                               const SizedBox(width: 12),
                               Container(

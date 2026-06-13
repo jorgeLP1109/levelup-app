@@ -83,7 +83,7 @@ class CartScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Text('\$${cart.totalPrice.toStringAsFixed(0)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.accent)),
+                            Text('${cart.totalPrice.toStringAsFixed(0)} COP', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.accent)),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -125,7 +125,7 @@ class CartScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          Text('\$${amount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 13)),
+          Text('${amount.toStringAsFixed(0)} COP', style: const TextStyle(color: Colors.white, fontSize: 13)),
         ],
       ),
     );
@@ -172,7 +172,7 @@ class _ServiceTile extends StatelessWidget {
             Text(item.nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
             if (item.descripcion != null) Text(item.descripcion!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
           ])),
-          Text('\$${item.precio.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
+          Text('${item.precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
           const SizedBox(width: 8),
           GestureDetector(onTap: () => cart.removeFromCart(item.id), child: const Icon(Icons.close, size: 16, color: AppColors.error)),
         ],
@@ -198,7 +198,7 @@ class _ProductTile extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(item.nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
-            Text('\$${item.precio.toStringAsFixed(0)} c/u', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+            Text('${item.precio.toStringAsFixed(0)} COP c/u', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
           ])),
           // Selector de cantidad
           Container(
@@ -213,7 +213,7 @@ class _ProductTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text('\$${item.subtotal.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
+          Text('${item.subtotal.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
           const SizedBox(width: 6),
           GestureDetector(onTap: () => cart.removeFromCart(item.id), child: const Icon(Icons.close, size: 16, color: AppColors.error)),
         ],

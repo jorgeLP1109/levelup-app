@@ -216,6 +216,13 @@ class _HomeHub extends StatelessWidget {
                   onTap: () => Navigator.pushNamed(context, '/teachers'),
                 ),
                 _MenuCard(
+                  icon: Icons.qr_code_rounded,
+                  title: 'Acceso',
+                  subtitle: 'QR de entrada',
+                  gradient: const [Color(0xFF1565C0), Color(0xFF1E88E5)],
+                  onTap: () => Navigator.pushNamed(context, '/access'),
+                ),
+                _MenuCard(
                   icon: Icons.storefront_rounded,
                   title: 'Tienda',
                   subtitle: 'Artículos deportivos',
@@ -523,7 +530,7 @@ class _ClassCard2 extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                child: Text('\$${gymClass.precio.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 13)),
+                child: Text('${gymClass.precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 13)),
               ),
             ],
           ),
@@ -808,14 +815,14 @@ class _RoutesViewState extends State<_RoutesView> {
                             final ok = await showDialog<bool>(context: context, builder: (c) => AlertDialog(
                               backgroundColor: AppColors.cardColor,
                               title: const Text('Afiliarme', style: TextStyle(color: Colors.white)),
-                              content: Text('Costo: \$${precio.toStringAsFixed(0)}/mes', style: const TextStyle(color: AppColors.textSecondary)),
+                              content: Text('Costo: ${precio.toStringAsFixed(0)} COP/mes', style: const TextStyle(color: AppColors.textSecondary)),
                               actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar')), ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Confirmar'))],
                             ));
                             if (ok == true) {
                               try { await ApiService().post('/routes/${r['_id']}/enroll'); _fetch(); } catch (_) {}
                             }
                           },
-                          child: Text('\$${precio.toStringAsFixed(0)}'),
+                          child: Text('${precio.toStringAsFixed(0)} COP'),
                         ),
                       ],
                     ),
