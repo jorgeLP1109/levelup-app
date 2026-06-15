@@ -7,6 +7,7 @@ import 'providers/class_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/forgot_password_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/cart_screen.dart';
@@ -40,6 +41,7 @@ class Level2026App extends StatelessWidget {
         routes: {
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
+          '/forgot-password': (_) => const ForgotPasswordScreen(),
           '/dashboard': (_) => const _DashboardWithAd(),
           '/profile': (_) => const ProfileScreen(),
           '/cart': (_) => const CartScreen(),
@@ -60,43 +62,50 @@ class _DashboardWithAd extends StatefulWidget {
   State<_DashboardWithAd> createState() => _DashboardWithAdState();
 }
 
+enum _AppState { loading, onboarding, ad, dashboard }
+
 class _DashboardWithAdState extends State<_DashboardWithAd> {
-  bool _checkingOnboarding = true;
-  bool _showOnboarding = false;
-  bool _showingAd = true;
+  _AppState _state = _AppState.loading;
 
   @override
   void initState() {
     super.initState();
-    _checkOnboarding();
+    _init();
   }
 
-  Future<void> _checkOnboarding() async {
+  Future<void> _init() async {
     const storage = FlutterSecureStorage();
-    final done = await storage.read(key: 'onboarding_complete');
-    setState(() {
-      _showOnboarding = done == null;
-      _checkingOnboarding = false;
-    });
+    final onboardingDone = await storage.read(key: 'onboarding_complete');
+
+    if (onboardingDone == null) {
+      setState(() => _state = _AppState.onboarding);
+    } else {
+      setState(() => _state = _AppState.ad);
+    }
+  }
+
+  void _onOnboardingComplete() {
+    setState(() => _state = _AppState.ad);
+  }
+
+  void _onAdComplete() {
+    setState(() => _state = _AppState.dashboard);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_checkingOnboarding) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0A192F),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF64FFDA))),
-      );
+    switch (_state) {
+      case _AppState.loading:
+        return const Scaffold(
+          backgroundColor: Color(0xFF0A192F),
+          body: Center(child: CircularProgressIndicator(color: Color(0xFF64FFDA))),
+        );
+      case _AppState.onboarding:
+        return OnboardingScreen(onComplete: _onOnboardingComplete);
+      case _AppState.ad:
+        return AdScreen(onComplete: _onAdComplete);
+      case _AppState.dashboard:
+        return const DashboardScreen();
     }
-
-    if (_showOnboarding) {
-      return OnboardingScreen(onComplete: () => setState(() => _showOnboarding = false));
-    }
-
-    if (_showingAd) {
-      return AdScreen(onComplete: () => setState(() => _showingAd = false));
-    }
-
-    return const DashboardScreen();
   }
 }

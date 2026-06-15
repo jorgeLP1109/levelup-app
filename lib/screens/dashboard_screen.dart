@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/constants.dart';
 import '../providers/auth_provider.dart';
 import '../providers/class_provider.dart';
@@ -601,6 +602,10 @@ class _ProgressViewState extends State<_ProgressView> {
     setState(() => _loading = false);
   }
 
+  void _openDetail(BuildContext context, dynamic progress) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => _ProgressDetailScreen(progress: progress)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -618,23 +623,124 @@ class _ProgressViewState extends State<_ProgressView> {
                         itemCount: _list.length,
                         itemBuilder: (_, i) {
                           final p = _list[i]; final clase = p['clase']; final fecha = DateTime.tryParse(p['fecha'] ?? '') ?? DateTime.now();
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(color: AppColors.cardColor, borderRadius: BorderRadius.circular(14)),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(children: [
-                                const Icon(Icons.emoji_events, color: AppColors.accentGold, size: 20), const SizedBox(width: 8),
-                                Expanded(child: Text(clase?['nombre'] ?? 'Clase', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                                Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                          return GestureDetector(
+                            onTap: () => _openDetail(context, p),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(color: AppColors.cardColor, borderRadius: BorderRadius.circular(14)),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Row(children: [
+                                  const Icon(Icons.emoji_events, color: AppColors.accentGold, size: 20), const SizedBox(width: 8),
+                                  Expanded(child: Text(clase?['nombre'] ?? 'Clase', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                  const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 18),
+                                ]),
+                                const SizedBox(height: 6),
+                                Text(p['descripcion'] ?? '', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                const SizedBox(height: 6),
+                                Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                               ]),
-                              const SizedBox(height: 6),
-                              Text(p['descripcion'] ?? '', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                            ]),
+                            ),
                           );
                         },
                       )),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── DETALLE DE PROGRESO ───
+class _ProgressDetailScreen extends StatelessWidget {
+  final dynamic progress;
+  const _ProgressDetailScreen({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final clase = progress['clase'];
+    final descripcion = progress['descripcion'] ?? '';
+    final fecha = DateTime.tryParse(progress['fecha'] ?? progress['createdAt'] ?? '') ?? DateTime.now();
+    final nombreClase = clase?['nombre'] ?? 'Clase';
+    final profesor = clase?['profesor'] ?? '';
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Detalle de Progreso'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              // Icono
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.accentGold.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.emoji_events, size: 56, color: AppColors.accentGold),
+              ),
+              const SizedBox(height: 20),
+
+              // Clase
+              Text(nombreClase, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+
+              // Profesor
+              if (profesor.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                  decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                  child: Text('Prof. $profesor', style: const TextStyle(color: AppColors.accent, fontSize: 13, fontWeight: FontWeight.w600)),
+                ),
+              const SizedBox(height: 16),
+
+              // Fecha
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(10)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_today, size: 16, color: AppColors.textSecondary),
+                    const SizedBox(width: 8),
+                    Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              // Descripción
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.cardColor,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.description, color: AppColors.accent.withOpacity(0.7), size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Reseña del Profesor', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Text(descripcion, style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.6)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -650,14 +756,37 @@ class _MessagesView extends StatefulWidget {
 class _MessagesViewState extends State<_MessagesView> {
   List<dynamic> _list = [];
   bool _loading = true;
+  Set<String> _dismissed = {};
 
   @override
-  void initState() { super.initState(); _fetch(); }
+  void initState() { super.initState(); _loadDismissed(); _fetch(); }
+
+  Future<void> _loadDismissed() async {
+    const storage = FlutterSecureStorage();
+    final raw = await storage.read(key: 'dismissed_messages');
+    if (raw != null) {
+      _dismissed = raw.split(',').toSet();
+    }
+  }
+
+  Future<void> _saveDismissed() async {
+    const storage = FlutterSecureStorage();
+    await storage.write(key: 'dismissed_messages', value: _dismissed.join(','));
+  }
+
+  void _dismissMessage(String id) {
+    setState(() => _dismissed.add(id));
+    _saveDismissed();
+  }
 
   Future<void> _fetch() async {
     setState(() => _loading = true);
     try { final res = await ApiService().get('/messages'); _list = res.data as List; } catch (_) {}
     setState(() => _loading = false);
+  }
+
+  void _openDetail(BuildContext context, dynamic msg) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => _MessageDetailScreen(message: msg, onDismiss: () => _dismissMessage(msg['_id'] ?? ''))));
   }
 
   @override
@@ -670,31 +799,180 @@ class _MessagesViewState extends State<_MessagesView> {
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.accent))
-                : _list.isEmpty
+                : _list.where((m) => !_dismissed.contains(m['_id'] ?? '')).isEmpty
                     ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.mail_outline, size: 60, color: AppColors.textSecondary), SizedBox(height: 12), Text('No hay mensajes', style: TextStyle(color: AppColors.textSecondary))]))
                     : RefreshIndicator(onRefresh: _fetch, child: ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: _list.length,
+                        itemCount: _list.where((m) => !_dismissed.contains(m['_id'] ?? '')).length,
                         itemBuilder: (_, i) {
-                          final msg = _list[i]; final fecha = DateTime.tryParse(msg['fechaPublicacion'] ?? msg['createdAt'] ?? '') ?? DateTime.now();
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(color: AppColors.cardColor, borderRadius: BorderRadius.circular(14)),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(children: [
-                                const Icon(Icons.campaign, color: AppColors.accentGold, size: 20), const SizedBox(width: 8),
-                                Expanded(child: Text(msg['titulo'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                              ]),
-                              const SizedBox(height: 8),
-                              Text(msg['contenido'] ?? '', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                              const SizedBox(height: 6),
-                              Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                            ]),
+                          final visible = _list.where((m) => !_dismissed.contains(m['_id'] ?? '')).toList();
+                          final msg = visible[i]; final fecha = DateTime.tryParse(msg['fechaPublicacion'] ?? msg['createdAt'] ?? '') ?? DateTime.now();
+                          return Dismissible(
+                            key: Key(msg['_id'] ?? '$i'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(color: AppColors.error.withOpacity(0.2), borderRadius: BorderRadius.circular(14)),
+                              child: const Icon(Icons.delete_outline, color: AppColors.error, size: 28),
+                            ),
+                            onDismissed: (_) => _dismissMessage(msg['_id'] ?? ''),
+                            child: GestureDetector(
+                              onTap: () => _openDetail(context, msg),
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(color: AppColors.cardColor, borderRadius: BorderRadius.circular(14)),
+                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Row(children: [
+                                    const Icon(Icons.campaign, color: AppColors.accentGold, size: 20), const SizedBox(width: 8),
+                                    Expanded(child: Text(msg['titulo'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                    const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 18),
+                                  ]),
+                                  const SizedBox(height: 8),
+                                  Text(msg['contenido'] ?? '', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 6),
+                                  Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                                ]),
+                              ),
+                            ),
                           );
                         },
                       )),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── DETALLE DE MENSAJE ───
+class _MessageDetailScreen extends StatelessWidget {
+  final dynamic message;
+  final VoidCallback? onDismiss;
+  const _MessageDetailScreen({required this.message, this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final titulo = message['titulo'] ?? '';
+    final contenido = message['contenido'] ?? '';
+    final destinatarios = message['destinatarios'] ?? 'todos';
+    final fecha = DateTime.tryParse(message['fechaPublicacion'] ?? message['createdAt'] ?? '') ?? DateTime.now();
+
+    String destLabel;
+    Color destColor;
+    switch (destinatarios) {
+      case 'clients': destLabel = 'Alumnos'; destColor = AppColors.accent; break;
+      case 'drivers': destLabel = 'Conductores'; destColor = Colors.orange; break;
+      default: destLabel = 'General'; destColor = AppColors.accentGold;
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Detalle del Mensaje'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              // Icono
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.accentGold.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.campaign, size: 56, color: AppColors.accentGold),
+              ),
+              const SizedBox(height: 20),
+
+              // Título
+              Text(titulo, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              const SizedBox(height: 14),
+
+              // Fecha + Destinatarios
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+                        const SizedBox(width: 6),
+                        Text('${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    decoration: BoxDecoration(color: destColor.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.group, size: 14, color: destColor),
+                        const SizedBox(width: 6),
+                        Text(destLabel, style: TextStyle(color: destColor, fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 28),
+
+              // Contenido completo
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.cardColor,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.message, color: AppColors.accent.withOpacity(0.7), size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Contenido', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Text(contenido, style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.6)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Botón eliminar local
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    onDismiss?.call();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mensaje eliminado')));
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('Eliminar mensaje'),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.error),
+                    foregroundColor: AppColors.error,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -810,16 +1088,21 @@ class _RoutesViewState extends State<_RoutesView> {
                           Text(dias.join(', '), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                         ])),
                         ElevatedButton(
-                          onPressed: () async {
+                          onPressed: () {
                             Navigator.pop(ctx);
-                            final ok = await showDialog<bool>(context: context, builder: (c) => AlertDialog(
-                              backgroundColor: AppColors.cardColor,
-                              title: const Text('Afiliarme', style: TextStyle(color: Colors.white)),
-                              content: Text('Costo: ${precio.toStringAsFixed(0)} COP/mes', style: const TextStyle(color: AppColors.textSecondary)),
-                              actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar')), ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Confirmar'))],
-                            ));
-                            if (ok == true) {
-                              try { await ApiService().post('/routes/${r['_id']}/enroll'); _fetch(); } catch (_) {}
+                            final cart = context.read<CartProvider>();
+                            final routeId = r['_id'] ?? '';
+                            if (cart.isInCart(routeId)) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esta ruta ya está en el carrito')));
+                            } else {
+                              cart.addToCart(CartItem(
+                                id: routeId,
+                                nombre: 'Ruta: ${conductor['nombre'] ?? 'Transporte'}',
+                                tipo: 'ruta',
+                                precio: precio,
+                                descripcion: '${dias.join(', ')} • ${precio.toStringAsFixed(0)} COP/mes',
+                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ruta agregada al carrito. Procede al pago para afiliarte.')));
                             }
                           },
                           child: Text('${precio.toStringAsFixed(0)} COP'),
