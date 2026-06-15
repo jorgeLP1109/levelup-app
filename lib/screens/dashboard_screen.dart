@@ -23,6 +23,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
+  int _refreshKey = 0;
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           const _HomeHub(),
           const _ClassesView(),
-          const _ProgressView(),
-          const _MessagesView(),
+          _ProgressView(key: ValueKey('p_$_refreshKey')),
+          _MessagesView(key: ValueKey('m_$_refreshKey')),
           const _RoutesView(),
         ],
       ),
@@ -70,7 +71,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _navItem(IconData icon, String label, int index) {
     final isActive = _currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () => setState(() {
+        _currentIndex = index;
+        if (index == 2 || index == 3) _refreshKey++;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: isActive ? 16 : 12, vertical: 8),
@@ -514,68 +518,239 @@ class _ClassCard2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isEnrolled ? AppColors.accent.withOpacity(0.4) : Colors.transparent),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(gymClass.nombre, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white))),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                child: Text('${gymClass.precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 13)),
+    return GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _ClassDetailScreen(gymClass: gymClass, isEnrolled: isEnrolled))),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isEnrolled ? AppColors.accent.withOpacity(0.4) : Colors.transparent),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.fitness_center, color: AppColors.accent, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(gymClass.nombre, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 4),
+                  Text('${gymClass.profesor} • ${gymClass.diasPorSemana} días/sem', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  const SizedBox(height: 4),
+                  Text('${gymClass.inscritos.length} inscritos', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text('${gymClass.profesor} • ${gymClass.diasPorSemana} días/sem', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            children: gymClass.horarios.map((h) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(8)),
-              child: Text('${h.dia} ${h.horaInicio}-${h.horaFin}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            )).toList(),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.group, size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text('${gymClass.inscritos.length} inscritos', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-              const Spacer(),
-              if (isEnrolled)
-                TextButton(
-                  onPressed: () async {
-                    final ok = await context.read<ClassProvider>().unenroll(gymClass.id);
-                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'Desinscripción exitosa' : 'Error')));
-                  },
-                  child: const Text('Desinscribirme', style: TextStyle(color: AppColors.error)),
-                )
-              else
-                ElevatedButton(
-                  onPressed: () {
-                    final cart = context.read<CartProvider>();
-                    if (cart.isInCart(gymClass.id)) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ya está en el carrito')));
-                    } else {
-                      cart.addToCart(CartItem(id: gymClass.id, nombre: gymClass.nombre, tipo: 'clase', precio: gymClass.precio, descripcion: '${gymClass.profesor} • ${gymClass.diasPorSemana}d/sem'));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clase agregada al carrito')));
-                    }
-                  },
-                  child: const Text('Inscribirme'),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
+                  child: Text('${gymClass.precio.toStringAsFixed(0)} COP', style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-            ],
-          ),
+                const SizedBox(height: 6),
+                if (isEnrolled)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: AppColors.success.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
+                    child: const Text('Inscrito', style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w600)),
+                  ),
+                const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══ DETALLE DE CLASE ═══
+class _ClassDetailScreen extends StatelessWidget {
+  final GymClass gymClass;
+  final bool isEnrolled;
+  const _ClassDetailScreen({required this.gymClass, required this.isEnrolled});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Detalle de Clase'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Icono + Nombre
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.fitness_center, size: 48, color: AppColors.accent),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(gymClass.nombre, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      decoration: BoxDecoration(color: AppColors.secondary, borderRadius: BorderRadius.circular(10)),
+                      child: Text('Prof. ${gymClass.profesor}', style: const TextStyle(color: AppColors.accent, fontSize: 14, fontWeight: FontWeight.w600)),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Info rápida
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _infoBadge(Icons.calendar_today, '${gymClass.diasPorSemana} días/sem'),
+                        const SizedBox(width: 12),
+                        _infoBadge(Icons.group, '${gymClass.inscritos.length} inscritos'),
+                        const SizedBox(width: 12),
+                        _infoBadge(Icons.attach_money, '${gymClass.precio.toStringAsFixed(0)} COP'),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Horarios detallados
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardColor,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.schedule, color: AppColors.accent, size: 20),
+                              SizedBox(width: 8),
+                              Text('Horarios', style: TextStyle(color: AppColors.accent, fontSize: 15, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (gymClass.horarios.isEmpty)
+                            const Text('Sin horarios asignados', style: TextStyle(color: AppColors.textSecondary))
+                          else
+                            ...gymClass.horarios.map((h) => Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+                                    child: Text(h.dia[0].toUpperCase() + h.dia.substring(1), style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 14)),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  const Icon(Icons.access_time, size: 16, color: AppColors.textSecondary),
+                                  const SizedBox(width: 6),
+                                  Text('${h.horaInicio} - ${h.horaFin}', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500)),
+                                ],
+                              ),
+                            )),
+                        ],
+                      ),
+                    ),
+
+                    // Estado de inscripción
+                    if (isEnrolled) ...[
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.success.withOpacity(0.3))),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                            SizedBox(width: 8),
+                            Text('Ya estás inscrito en esta clase', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
+            // Botón fijo
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, -4))],
+              ),
+              child: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: isEnrolled
+                      ? OutlinedButton(
+                          onPressed: () async {
+                            final ok = await context.read<ClassProvider>().unenroll(gymClass.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'Desinscripción exitosa' : 'Error')));
+                              if (ok) Navigator.pop(context);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(side: const BorderSide(color: AppColors.error), foregroundColor: AppColors.error, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                          child: const Text('Desinscribirme', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        )
+                      : ElevatedButton.icon(
+                          onPressed: () {
+                            final cart = context.read<CartProvider>();
+                            if (cart.isInCart(gymClass.id)) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ya está en el carrito')));
+                            } else {
+                              cart.addToCart(CartItem(id: gymClass.id, nombre: gymClass.nombre, tipo: 'clase', precio: gymClass.precio, descripcion: '${gymClass.profesor} • ${gymClass.diasPorSemana}d/sem'));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clase agregada al carrito')));
+                              Navigator.pop(context);
+                            }
+                          },
+                          icon: const Icon(Icons.add_shopping_cart),
+                          label: const Text('Agregar al Carrito', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoBadge(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: AppColors.cardColor, borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 5),
+          Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         ],
       ),
     );
@@ -584,7 +759,7 @@ class _ClassCard2 extends StatelessWidget {
 
 // ─── PROGRESO ───
 class _ProgressView extends StatefulWidget {
-  const _ProgressView();
+  const _ProgressView({super.key});
   @override
   State<_ProgressView> createState() => _ProgressViewState();
 }
@@ -748,7 +923,7 @@ class _ProgressDetailScreen extends StatelessWidget {
 
 // ─── MENSAJES ───
 class _MessagesView extends StatefulWidget {
-  const _MessagesView();
+  const _MessagesView({super.key});
   @override
   State<_MessagesView> createState() => _MessagesViewState();
 }
