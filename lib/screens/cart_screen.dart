@@ -240,7 +240,7 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
 
   // Llave pública Sandbox de Wompi Colombia
   static const _wompiPublicKey = 'pub_test_acHKdMUfdyhA5KmSItRJ2VviOzzej51L';
-  static const _redirectUrl = 'https://levelup-gym.com/payment-result';
+  static const _redirectUrl = 'https://api.levelupsportctg.com/api/wompi/resultado';
 
   @override
   void initState() {
@@ -287,11 +287,22 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
         onPageStarted: (_) => setState(() => _loading = true),
         onPageFinished: (_) => setState(() => _loading = false),
         onNavigationRequest: (request) {
-          if (request.url.contains('payment-result') || request.url.contains(_redirectUrl)) {
+          // Detectar redirección de Wompi (resultado de pago)
+          if (request.url.contains('/wompi/resultado') || 
+              request.url.contains('payment-result') ||
+              request.url.contains('id=') && request.url.contains('env=')) {
             _handlePaymentResult(request.url);
             return NavigationDecision.prevent;
           }
           return NavigationDecision.navigate;
+        },
+        onUrlChange: (change) {
+          // Detectar cambio de URL que indique fin de pago
+          if (change.url != null && 
+              (change.url!.contains('/wompi/resultado') || 
+               change.url!.contains('payment-result'))) {
+            _handlePaymentResult(change.url!);
+          }
         },
       ))
       ..loadRequest(Uri.parse(checkoutUrl));
