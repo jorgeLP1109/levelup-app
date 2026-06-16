@@ -254,10 +254,11 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
     final email = auth.user?.email ?? '';
 
     // Obtener referencia y firma del backend
-    String ref = 'LVL-${DateTime.now().millisecondsSinceEpoch}';
-    int amountCents = cart.totalCentavos;
+    String ref = '';
+    int amountCents = 0;
     String integritySignature = '';
     String publicKey = _wompiPublicKey;
+    String redirectUrl = _redirectUrl;
 
     try {
       final res = await WompiService().crearIntentoPago(
@@ -265,12 +266,31 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
         total: cart.totalPrice,
         email: email,
       );
-      final data = res as Map<String, dynamic>;
-      ref = data['referenciaWompi'] ?? ref;
-      amountCents = data['montoCentavos'] ?? amountCents;
-      integritySignature = data['integritySignature'] ?? '';
-      publicKey = data['publicKey'] ?? _wompiPublicKey;
-    } catch (_) {}
+      ref = res['referenciaWompi'] ?? '';
+      amountCents = res['montoCentavos'] ?? 0;
+      integritySignature = res['integritySignature'] ?? '';
+      publicKey = res['publicKey'] ?? _wompiPublicKey;
+      redirectUrl = res['redirectUrl'] ?? _redirectUrl;
+    } catch (_) {
+      // Si falla, volver atrás
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al iniciar el pago. Intenta de nuevo.')),
+        );
+      }
+      return;
+    }
+
+    if (ref.isEmpty || integritySignature.isEmpty) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo generar la referencia de pago.')),
+        );
+      }
+      return;
+    }
 
     // URL del Webcheckout con firma de integridad
     final checkoutUrl = 'https://checkout.wompi.co/p/?public-key=$publicKey'
@@ -278,26 +298,26 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
         '&amount-in-cents=$amountCents'
         '&reference=$ref'
         '&signature:integrity=$integritySignature'
-        '&redirect-url=$_redirectUrl'
-        '&customer-data:email=$email';
+        '&redirect-url=${Uri.encodeComponent(redirectUrl)}'
+        '&customer-data:email=${Uri.encodeComponent(email)}';
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
         onPageStarted: (_) => setState(() => _loading = true),
-        onPageFinished: (_) => setState(() => _loading = false),
+        onPageFinished: (url) {
+          setState(() => _loading = false);
+          // Verificar si la página final es nuestro resultado
+          if (url.contains('api.levelupsportctg.com/api/wompi/resultado')) {
+            _handlePaymentResult(url);
+          }
+        },
         onNavigationRequest: (request) {
-          // Solo interceptar cuando Wompi redirige a nuestra URL de resultado
           if (request.url.contains('api.levelupsportctg.com/api/wompi/resultado')) {
             _handlePaymentResult(request.url);
             return NavigationDecision.prevent;
           }
           return NavigationDecision.navigate;
-        },
-        onUrlChange: (change) {
-          if (change.url != null && change.url!.contains('api.levelupsportctg.com/api/wompi/resultado')) {
-            _handlePaymentResult(change.url!);
-          }
         },
       ))
       ..loadRequest(Uri.parse(checkoutUrl));
