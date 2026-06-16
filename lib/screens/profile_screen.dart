@@ -273,8 +273,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (_pesoCtrl.text.isNotEmpty) body['peso'] = double.tryParse(_pesoCtrl.text);
       if (_estaturaCtrl.text.isNotEmpty) body['estatura'] = double.tryParse(_estaturaCtrl.text);
       if (_tipoSangre != null) body['tipoSangre'] = _tipoSangre;
-      if (_alergiasCtrl.text.isNotEmpty) body['alergias'] = _alergiasCtrl.text.trim();
-      if (_medicamentosCtrl.text.isNotEmpty) body['medicamentos'] = _medicamentosCtrl.text.trim();
+      body['alergias'] = _alergiasCtrl.text.trim();
+      body['medicamentos'] = _medicamentosCtrl.text.trim();
       body['contactoEmergenciaNombre'] = _emergNombreCtrl.text.trim();
       body['contactoEmergenciaTelefono'] = _emergTelefonoCtrl.text.trim();
 
