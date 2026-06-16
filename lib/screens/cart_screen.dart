@@ -335,15 +335,13 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
     // Inscribir en clases y rutas
     for (final item in List<CartItem>.from(cart.items)) {
       try {
-        if (item.tipo == 'clase') await api.post('/classes/${item.id}/enroll');
-        if (item.tipo == 'ruta') await api.post('/routes/${item.id}/enroll');
+        if (item.tipo == 'clase' && !item.id.startsWith('mensualidad_')) {
+          await api.post('/classes/${item.id}/enroll');
+        } else if (item.tipo == 'ruta') {
+          await api.post('/routes/${item.id}/enroll');
+        }
       } catch (_) {}
     }
-
-    // Actualizar transacción a APPROVED en el backend
-    try {
-      await api.post('/wompi/confirmar-pago', data: {'referencia': _currentRef});
-    } catch (_) {}
 
     cart.clearCart();
 
