@@ -237,7 +237,6 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
   late final WebViewController _controller;
   bool _loading = true;
   bool _paymentProcessed = false;
-  String _currentRef = '';
 
   // Llave pública Sandbox de Wompi Colombia
   static const _wompiPublicKey = 'pub_test_acHKdMUfdyhA5KmSItRJ2VviOzzej51L';
@@ -268,7 +267,6 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
         email: email,
       );
       ref = res['referenciaWompi'] ?? '';
-      _currentRef = ref;
       amountCents = res['montoCentavos'] ?? 0;
       integritySignature = res['integritySignature'] ?? '';
       publicKey = res['publicKey'] ?? _wompiPublicKey;
@@ -335,11 +333,8 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
     // Inscribir en clases y rutas
     for (final item in List<CartItem>.from(cart.items)) {
       try {
-        if (item.tipo == 'clase' && !item.id.startsWith('mensualidad_')) {
-          await api.post('/classes/${item.id}/enroll');
-        } else if (item.tipo == 'ruta') {
-          await api.post('/routes/${item.id}/enroll');
-        }
+        if (item.tipo == 'clase') await api.post('/classes/${item.id}/enroll');
+        if (item.tipo == 'ruta') await api.post('/routes/${item.id}/enroll');
       } catch (_) {}
     }
 
