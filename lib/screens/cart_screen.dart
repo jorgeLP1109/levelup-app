@@ -239,7 +239,7 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
   bool _paymentProcessed = false;
 
   // Llave pública Sandbox de Wompi Colombia
-  static const _wompiPublicKey = 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7';
+  static const _wompiPublicKey = 'pub_test_acHKdMUfdyhA5KmSItRJ2VviOzzej51L';
   static const _redirectUrl = 'https://levelup-gym.com/payment-result';
 
   @override
