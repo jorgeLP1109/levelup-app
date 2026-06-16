@@ -287,20 +287,15 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
         onPageStarted: (_) => setState(() => _loading = true),
         onPageFinished: (_) => setState(() => _loading = false),
         onNavigationRequest: (request) {
-          // Detectar redirección de Wompi (resultado de pago)
-          if (request.url.contains('/wompi/resultado') || 
-              request.url.contains('payment-result') ||
-              request.url.contains('id=') && request.url.contains('env=')) {
+          // Solo interceptar cuando Wompi redirige a nuestra URL de resultado
+          if (request.url.contains('api.levelupsportctg.com/api/wompi/resultado')) {
             _handlePaymentResult(request.url);
             return NavigationDecision.prevent;
           }
           return NavigationDecision.navigate;
         },
         onUrlChange: (change) {
-          // Detectar cambio de URL que indique fin de pago
-          if (change.url != null && 
-              (change.url!.contains('/wompi/resultado') || 
-               change.url!.contains('payment-result'))) {
+          if (change.url != null && change.url!.contains('api.levelupsportctg.com/api/wompi/resultado')) {
             _handlePaymentResult(change.url!);
           }
         },
