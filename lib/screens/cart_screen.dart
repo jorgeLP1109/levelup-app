@@ -251,24 +251,33 @@ class _WompiWebCheckoutState extends State<_WompiWebCheckout> {
   Future<void> _initCheckout() async {
     final cart = context.read<CartProvider>();
     final auth = context.read<AuthProvider>();
-    final ref = 'LVL-${DateTime.now().millisecondsSinceEpoch}';
-    final amountCents = cart.totalCentavos;
     final email = auth.user?.email ?? '';
 
-    // Intentar crear intento en backend
+    // Obtener referencia y firma del backend
+    String ref = 'LVL-${DateTime.now().millisecondsSinceEpoch}';
+    int amountCents = cart.totalCentavos;
+    String integritySignature = '';
+    String publicKey = _wompiPublicKey;
+
     try {
-      await WompiService().crearIntentoPago(
+      final res = await WompiService().crearIntentoPago(
         items: cart.items.map((i) => i.toJson()).toList(),
         total: cart.totalPrice,
         email: email,
       );
+      final data = res as Map<String, dynamic>;
+      ref = data['referenciaWompi'] ?? ref;
+      amountCents = data['montoCentavos'] ?? amountCents;
+      integritySignature = data['integritySignature'] ?? '';
+      publicKey = data['publicKey'] ?? _wompiPublicKey;
     } catch (_) {}
 
-    // URL del Webcheckout Sandbox de Wompi
-    final checkoutUrl = 'https://checkout.wompi.co/p/?public-key=$_wompiPublicKey'
+    // URL del Webcheckout con firma de integridad
+    final checkoutUrl = 'https://checkout.wompi.co/p/?public-key=$publicKey'
         '&currency=COP'
         '&amount-in-cents=$amountCents'
         '&reference=$ref'
+        '&signature:integrity=$integritySignature'
         '&redirect-url=$_redirectUrl'
         '&customer-data:email=$email';
 
