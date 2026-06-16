@@ -160,18 +160,67 @@ class _HomeHub extends StatelessWidget {
           // ─── BANNER MENSUALIDAD ───
           if (user != null && user.mensualidadVencida)
             SliverToBoxAdapter(
-              child: _AlertBanner(
-                color: AppColors.error,
-                icon: Icons.warning_rounded,
-                text: 'Mensualidad vencida. Renueva desde el carrito o contacta administración.',
+              child: GestureDetector(
+                onTap: () {
+                  final cart = context.read<CartProvider>();
+                  if (!cart.isInCart('mensualidad_${user.id}')) {
+                    // Sumar precios de clases inscritas
+                    final totalMensual = myClasses.fold(0.0, (sum, c) => sum + c.precio);
+                    if (totalMensual > 0) {
+                      cart.addToCart(CartItem(
+                        id: 'mensualidad_${user.id}',
+                        nombre: 'Mensualidad Level Up',
+                        tipo: 'clase',
+                        precio: totalMensual,
+                        descripcion: '${myClasses.length} clase${myClasses.length > 1 ? 's' : ''} • Renovación mensual',
+                      ));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Mensualidad agregada al carrito')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No tienes clases inscritas para renovar')),
+                      );
+                    }
+                  } else {
+                    Navigator.pushNamed(context, '/cart');
+                  }
+                },
+                child: _AlertBanner(
+                  color: AppColors.error,
+                  icon: Icons.warning_rounded,
+                  text: 'Mensualidad vencida. Toca aquí para renovar.',
+                ),
               ),
             )
           else if (user != null && user.mensualidadPorVencer)
             SliverToBoxAdapter(
-              child: _AlertBanner(
-                color: AppColors.accentGold,
-                icon: Icons.access_time_rounded,
-                text: 'Tu mensualidad vence en ${user.diasRestantes} días. ¡Evita perder tus clases!',
+              child: GestureDetector(
+                onTap: () {
+                  final cart = context.read<CartProvider>();
+                  if (!cart.isInCart('mensualidad_${user.id}')) {
+                    final totalMensual = myClasses.fold(0.0, (sum, c) => sum + c.precio);
+                    if (totalMensual > 0) {
+                      cart.addToCart(CartItem(
+                        id: 'mensualidad_${user.id}',
+                        nombre: 'Mensualidad Level Up',
+                        tipo: 'clase',
+                        precio: totalMensual,
+                        descripcion: '${myClasses.length} clase${myClasses.length > 1 ? 's' : ''} • Renovación mensual',
+                      ));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Mensualidad agregada al carrito')),
+                      );
+                    }
+                  } else {
+                    Navigator.pushNamed(context, '/cart');
+                  }
+                },
+                child: _AlertBanner(
+                  color: AppColors.accentGold,
+                  icon: Icons.access_time_rounded,
+                  text: 'Tu mensualidad vence en ${user.diasRestantes} días. Toca para renovar.',
+                ),
               ),
             ),
 
