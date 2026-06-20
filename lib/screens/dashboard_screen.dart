@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -137,7 +137,7 @@ class _HomeHub extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Â¡Hola, ${user?.nombre?.split(' ').first ?? ''}!',
+                        Text('¡Hola, ${user?.nombre?.split(' ').first ?? ''}!',
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                         const SizedBox(height: 4),
                         _PlanBadge(user: user),
@@ -204,7 +204,7 @@ class _HomeHub extends StatelessWidget {
                 _MenuCard(
                   icon: Icons.mail_rounded,
                   title: 'Mensajes',
-                  subtitle: 'TablÃ³n de anuncios',
+                  subtitle: 'Tablon de anuncios',
                   gradient: const [Color(0xFF4A148C), Color(0xFF7B1FA2)],
                   onTap: () => _goToTab(context, 3),
                   showBadge: true,
@@ -233,7 +233,7 @@ class _HomeHub extends StatelessWidget {
                 _MenuCard(
                   icon: Icons.storefront_rounded,
                   title: 'Tienda',
-                  subtitle: 'ArtÃ­culos deportivos',
+                  subtitle: 'Articulos deportivos',
                   gradient: const [Color(0xFF4E342E), Color(0xFF6D4C41)],
                   onTap: () => Navigator.pushNamed(context, '/shop'),
                 ),
@@ -249,12 +249,12 @@ class _HomeHub extends StatelessWidget {
             ),
           ),
 
-          // â”€â”€â”€ CLASES INSCRITAS (resumen rÃ¡pido) â”€â”€â”€
+          // â”€â”€â”€ CLASES INSCRITAS (resumen rapido) â”€â”€â”€
           if (myClasses.isNotEmpty) ...[
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
-                child: Text('PrÃ³ximas Clases', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                child: Text('Proximas Clases', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
               ),
             ),
             SliverList(
@@ -545,7 +545,7 @@ class _ClassCard2 extends StatelessWidget {
                 children: [
                   Text(gymClass.nombre, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                   const SizedBox(height: 4),
-                  Text('${gymClass.profesor} â€¢ ${gymClass.diasPorSemana} dÃ­as/sem', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text('${gymClass.profesor} â€¢ ${gymClass.diasPorSemana} dias/sem', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                   const SizedBox(height: 4),
                   Text('${gymClass.inscritos.length} inscritos', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                 ],
@@ -615,11 +615,11 @@ class _ClassDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // Info rÃ¡pida
+                    // Info rapida
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _infoBadge(Icons.calendar_today, '${gymClass.diasPorSemana} dÃ­as/sem'),
+                        _infoBadge(Icons.calendar_today, '${gymClass.diasPorSemana} dias/sem'),
                         const SizedBox(width: 12),
                         _infoBadge(Icons.group, '${gymClass.inscritos.length} inscritos'),
                         const SizedBox(width: 12),
@@ -676,7 +676,7 @@ class _ClassDetailScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // Estado de inscripciÃ³n
+                    // Estado de inscripcion
                     if (isEnrolled) ...[
                       const SizedBox(height: 20),
                       Container(
@@ -688,7 +688,7 @@ class _ClassDetailScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.check_circle, color: AppColors.success, size: 20),
                             SizedBox(width: 8),
-                            Text('Ya estÃ¡s inscrito en esta clase', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
+                            Text('Ya estas inscrito en esta clase', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -698,7 +698,7 @@ class _ClassDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // BotÃ³n fijo
+            // Boton fijo
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -714,7 +714,7 @@ class _ClassDetailScreen extends StatelessWidget {
                           onPressed: () async {
                             final ok = await context.read<ClassProvider>().unenroll(gymClass.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'DesinscripciÃ³n exitosa' : 'Error')));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'Desinscripcion exitosa' : 'Error')));
                               if (ok) Navigator.pop(context);
                             }
                           },
@@ -725,7 +725,7 @@ class _ClassDetailScreen extends StatelessWidget {
                           onPressed: () {
                             final cart = context.read<CartProvider>();
                             if (cart.isInCart(gymClass.id)) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ya estÃ¡ en el carrito')));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ya esta en el carrito')));
                             } else {
                               cart.addToCart(CartItem(id: gymClass.id, nombre: gymClass.nombre, tipo: 'clase', precio: gymClass.precio, descripcion: '${gymClass.profesor} â€¢ ${gymClass.diasPorSemana}d/sem'));
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clase agregada al carrito')));
@@ -795,7 +795,7 @@ class _ProgressViewState extends State<_ProgressView> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.accent))
                 : _list.isEmpty
-                    ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.trending_up, size: 60, color: AppColors.textSecondary), SizedBox(height: 12), Text('AÃºn no hay registros', style: TextStyle(color: AppColors.textSecondary))]))
+                    ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.trending_up, size: 60, color: AppColors.textSecondary), SizedBox(height: 12), Text('Aun no hay registros', style: TextStyle(color: AppColors.textSecondary))]))
                     : RefreshIndicator(onRefresh: _fetch, child: ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _list.length,
@@ -892,7 +892,7 @@ class _ProgressDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 28),
 
-              // DescripciÃ³n
+              // Descripcion
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -908,7 +908,7 @@ class _ProgressDetailScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.description, color: AppColors.accent.withOpacity(0.7), size: 20),
                         const SizedBox(width: 8),
-                        const Text('ReseÃ±a del Profesor', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                        const Text('Resena del Profesor', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -1068,7 +1068,7 @@ class _MessageDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // TÃ­tulo
+              // Titulo
               Text(titulo, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
               const SizedBox(height: 14),
 
@@ -1131,7 +1131,7 @@ class _MessageDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // BotÃ³n eliminar local
+              // Boton eliminar local
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -1180,7 +1180,7 @@ class _RoutesViewState extends State<_RoutesView> {
   Widget build(BuildContext context) {
     final userId = context.read<AuthProvider>().user?.id ?? '';
 
-    // Filtrar: solo la ruta a la que estÃ¡ afiliado
+    // Filtrar: solo la ruta a la que esta afiliado
     final myRoute = _list.where((r) {
       final afiliados = r['afiliados'] as List? ?? [];
       return afiliados.any((a) => a is String ? a == userId : a['_id'] == userId);
@@ -1201,9 +1201,9 @@ class _RoutesViewState extends State<_RoutesView> {
                           children: [
                             const Icon(Icons.directions_bus, size: 60, color: AppColors.textSecondary),
                             const SizedBox(height: 12),
-                            const Text('No estÃ¡s afiliado a una ruta', style: TextStyle(color: AppColors.textSecondary)),
+                            const Text('No estas afiliado a una ruta', style: TextStyle(color: AppColors.textSecondary)),
                             const SizedBox(height: 8),
-                            const Text('AfÃ­liate desde la secciÃ³n de rutas disponibles', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                            const Text('Afiliate desde la seccion de rutas disponibles', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () => _showAllRoutes(context),
@@ -1271,7 +1271,7 @@ class _RoutesViewState extends State<_RoutesView> {
                             final cart = context.read<CartProvider>();
                             final routeId = r['_id'] ?? '';
                             if (cart.isInCart(routeId)) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esta ruta ya estÃ¡ en el carrito')));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Esta ruta ya esta en el carrito')));
                             } else {
                               cart.addToCart(CartItem(
                                 id: routeId,
@@ -1340,7 +1340,7 @@ class _MyRouteCard extends StatelessWidget {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(hasLoc ? Icons.gps_fixed : Icons.gps_off, size: 12, color: hasLoc ? AppColors.success : AppColors.textSecondary),
                 const SizedBox(width: 4),
-                Text(hasLoc ? 'En ruta' : 'Sin seÃ±al', style: TextStyle(fontSize: 10, color: hasLoc ? AppColors.success : AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                Text(hasLoc ? 'En ruta' : 'Sin senal', style: TextStyle(fontSize: 10, color: hasLoc ? AppColors.success : AppColors.textSecondary, fontWeight: FontWeight.w600)),
               ]),
             ),
           ]),
@@ -1357,13 +1357,13 @@ class _MyRouteCard extends StatelessWidget {
             Text('${horarios['horaSalida'] ?? ''} - ${horarios['horaRetorno'] ?? ''}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ]),
           const SizedBox(height: 14),
-          // BotÃ³n de tracking
+          // Boton de tracking
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => _openTracking(context),
               icon: Icon(hasLoc ? Icons.location_on : Icons.location_searching, size: 18),
-              label: Text(hasLoc ? 'Ver ubicaciÃ³n del conductor' : 'Esperando seÃ±al GPS...'),
+              label: Text(hasLoc ? 'Ver ubicacion del conductor' : 'Esperando senal GPS...'),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: hasLoc ? AppColors.accent : AppColors.textSecondary),
                 foregroundColor: hasLoc ? AppColors.accent : AppColors.textSecondary,
@@ -1429,7 +1429,7 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('UbicaciÃ³n del Conductor'),
+        title: const Text('Ubicacion del Conductor'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -1456,7 +1456,7 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
                   Row(children: [
                     Icon(hasLoc ? Icons.gps_fixed : Icons.gps_off, size: 14, color: hasLoc ? AppColors.success : AppColors.error),
                     const SizedBox(width: 4),
-                    Text(hasLoc ? 'SeÃ±al activa' : 'Sin seÃ±al GPS', style: TextStyle(fontSize: 12, color: hasLoc ? AppColors.success : AppColors.error)),
+                    Text(hasLoc ? 'Senal activa' : 'Sin senal GPS', style: TextStyle(fontSize: 12, color: hasLoc ? AppColors.success : AppColors.error)),
                   ]),
                 ])),
               ]),
@@ -1522,7 +1522,7 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
                             children: [
                               Icon(Icons.location_searching, size: 56, color: AppColors.textSecondary.withOpacity(0.5)),
                               const SizedBox(height: 16),
-                              const Text('Esperando seÃ±al GPS del conductor...', style: TextStyle(color: AppColors.textSecondary)),
+                              const Text('Esperando senal GPS del conductor...', style: TextStyle(color: AppColors.textSecondary)),
                               const SizedBox(height: 8),
                               const Text('Se actualiza cada 5 segundos', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                               const SizedBox(height: 20),
@@ -1558,3 +1558,4 @@ class _RouteTrackingScreenState extends State<_RouteTrackingScreen> {
     );
   }
 }
+
