@@ -14,7 +14,30 @@ class ClassProvider extends ChangeNotifier {
 
   List<GymClass> getMyClasses(String userId) {
     return _classes.where((c) {
-      return c.inscritos.any((i) => i is String ? i == userId : i['_id'] == userId);
+      return c.inscritos.any((i) {
+        if (i is String) return i == userId;
+        if (i is Map) {
+          final user = i['user'];
+          if (user is String) return user == userId;
+          if (user is Map) return user['_id'] == userId;
+        }
+        return false;
+      });
+    }).toList();
+  }
+
+  /// Obtener clases vencidas del usuario
+  List<GymClass> getVencidas(String userId) {
+    final now = DateTime.now();
+    return _classes.where((c) {
+      return c.inscritos.any((i) {
+        if (i is! Map) return false;
+        final user = i['user'];
+        final uid = user is String ? user : (user is Map ? user['_id'] : '');
+        if (uid != userId) return false;
+        final venc = DateTime.tryParse(i['fechaVencimiento'] ?? '');
+        return venc != null && venc.isBefore(now);
+      });
     }).toList();
   }
 
