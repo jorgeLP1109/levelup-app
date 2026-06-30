@@ -161,6 +161,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : const Text('Actualizar Perfil', style: TextStyle(fontSize: 16)),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // ─── BOTÓN ELIMINAR CUENTA ───
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: _saving ? null : _confirmarEliminarCuenta,
+                  icon: const Icon(Icons.delete_forever, color: AppColors.error),
+                  label: const Text('Eliminar mi cuenta', style: TextStyle(color: AppColors.error, fontSize: 16)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.error),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
             ],
           ),
@@ -259,6 +275,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     }
+  }
+
+  Future<void> _confirmarEliminarCuenta() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardColor,
+        title: const Text('Eliminar cuenta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Esta accion es permanente. Se eliminaran todos tus datos, clases, progreso e historial. No podras recuperar tu cuenta.\n\n¿Estas seguro?',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Si, eliminar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _saving = true);
+    try {
+      await ApiService().delete('/users/me');
+      if (mounted) {
+        await context.read<AuthProvider>().logout();
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cuenta eliminada correctamente')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al eliminar la cuenta. Intentalo de nuevo.')),
+        );
+      }
+    }
+    setState(() => _saving = false);
   }
 
   Future<void> _guardarPerfil() async {

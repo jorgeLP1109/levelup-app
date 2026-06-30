@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Level Up necesita acceder a tu cámara para tomar la foto de perfil del alumno.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Level Up necesita acceder a tu galería para seleccionar la foto de perfil del alumno.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Level Up necesita tu ubicación para mostrar el seguimiento en tiempo real de la ruta de transporte.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Level Up necesita tu ubicación para el seguimiento GPS de la ruta de transporte.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
