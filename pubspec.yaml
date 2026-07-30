@@ -1,7 +1,7 @@
 name: level2026
 description: Level 2026 - App de gimnasio de gimnasia
 publish_to: 'none'
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
